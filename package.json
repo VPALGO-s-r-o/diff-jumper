@@ -4,7 +4,7 @@
   "description": "Description test",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.99.0"
+    "vscode": "^1.90.0"
   },
   "categories": [
     "Other"
@@ -14,8 +14,16 @@
   "contributes": {
     "commands": [
       {
-        "command": "compare-editor-jump.helloWorld",
-        "title": "Hello World"
+        "command": "compare-editor-jump.left",
+        "title": "Jump to Left Editor"
+      },
+      {
+        "command": "compare-editor-jump.right",
+        "title": "Jump to Right Editor"
+      },
+      {
+        "command": "compare-editor-jump.auto",
+        "title": "Jump to Other Editor"
       }
     ]
   },
