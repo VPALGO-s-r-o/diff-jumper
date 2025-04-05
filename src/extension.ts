@@ -5,17 +5,9 @@ import { findCorrespondingLine, isFileEditor, isGitEditor } from './utils/editor
 
 /**
  * Handles jumping between editors in a diff view
- * @param direction 'left', 'right', or 'auto' - the direction to jump
- * @param fileType 'original', 'modified', or null (for auto) - the file type to use for mapping
- * @param focusCommand The command to execute to focus the target editor, or null for auto
- * @param isTargetGit Whether the target editor is the git editor, or null for auto
+ * @param target 'original', 'modified', or 'auto' - the target editor to jump to
  */
-function handleJump(
-	direction: 'left' | 'right' | 'auto',
-	fileType: 'original' | 'modified' | null,
-	focusCommand: string | null,
-	isTargetGit: boolean | null
-) {
+function handleJump(target: 'original' | 'modified' | 'auto') {
 	const currentEditor = vscode.window.activeTextEditor;
 	if (!currentEditor) {
 		vscode.window.showInformationMessage('No active editor found');
@@ -37,30 +29,34 @@ function handleJump(
 
 	const isCurrentGit = isGitEditor(currentEditor);
 
-	// Handle auto mode - determine target and file type based on current editor
-	let actualTargetGit = isTargetGit;
-	let actualFileType: 'original' | 'modified' = fileType as 'original' | 'modified';
-	let actualFocusCommand = focusCommand;
-
-	if (direction === 'auto') {
-		// If we're in auto mode, target the opposite editor
-		actualTargetGit = !isCurrentGit;
-		actualFileType = isCurrentGit ? 'original' : 'modified';
-		actualFocusCommand = isCurrentGit
-			? 'workbench.action.compareEditor.focusPrimarySide'
-			: 'workbench.action.compareEditor.focusSecondarySide';
+	// Determine the actual target based on current editor and target parameter
+	let actualTarget = target;
+	if (target === 'auto') {
+		// If we're in auto mode, target the opposite editor type
+		actualTarget = isCurrentGit ? 'original' : 'modified';
 	}
+
+	// Determine if we're targeting the git editor
+	const isTargetGit = actualTarget === 'modified';
 
 	// Skip if already in the target editor
-	if ((actualTargetGit && isCurrentGit) || (!actualTargetGit && !isCurrentGit)) {
-		console.log(`Skipping ${direction} jump - already in the target editor`);
+	if ((isTargetGit && isCurrentGit) || (!isTargetGit && !isCurrentGit)) {
+		console.log(`Skipping jump to ${actualTarget} - already in the target editor`);
 		return;
 	}
+
+	// Determine the file type for mapping (which is the same as the target)
+	const fileType = actualTarget === 'auto' ? 'original' : actualTarget as 'original' | 'modified';
+
+	// Determine the focus command based on the target
+	const focusCommand = isTargetGit
+		? 'workbench.action.compareEditor.focusSecondarySide'
+		: 'workbench.action.compareEditor.focusPrimarySide';
 
 	const currentLine = currentEditor.selection.active.line;
 	const changes = (gitEditor as any).diffInformation[0].changes;
 
-	const lineToJump = findCorrespondingLine(currentLine + 1, actualFileType, changes);
+	const lineToJump = findCorrespondingLine(currentLine + 1, fileType, changes);
 	console.log('lineToJump', lineToJump);
 
 	// Convert from 1-based to 0-based indexing for VSCode Position
@@ -68,12 +64,10 @@ function handleJump(
 	const range = new vscode.Range(new vscode.Position(zeroBasedLine, 0), new vscode.Position(zeroBasedLine, 0));
 
 	// Focus the target editor
-	if (actualFocusCommand) {
-		vscode.commands.executeCommand(actualFocusCommand);
-	}
+	vscode.commands.executeCommand(focusCommand);
 
 	// Set selection and reveal range in the target editor
-	const targetEditor = actualTargetGit ? gitEditor : fileEditor;
+	const targetEditor = isTargetGit ? gitEditor : fileEditor;
 	targetEditor.selection = new vscode.Selection(range.start, range.start);
 	targetEditor.revealRange(range, vscode.TextEditorRevealType.InCenter);
 }
@@ -81,39 +75,16 @@ function handleJump(
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "compare-editor-jump" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
 	const jumpLeftCommand = vscode.commands.registerCommand('compare-editor-jump.left', () => {
-		handleJump(
-			'left',
-			'modified',
-			'workbench.action.compareEditor.focusSecondarySide',
-			true
-		);
+		handleJump('modified');
 	});
 
 	const jumpRightCommand = vscode.commands.registerCommand('compare-editor-jump.right', () => {
-		handleJump(
-			'right',
-			'original',
-			'workbench.action.compareEditor.focusPrimarySide',
-			false
-		);
+		handleJump('original');
 	});
 
 	const jumpAutoCommand = vscode.commands.registerCommand('compare-editor-jump.auto', () => {
-		handleJump(
-			'auto',
-			null,
-			null,
-			null
-		);
+		handleJump('auto');
 	});
 
 	context.subscriptions.push(jumpLeftCommand, jumpRightCommand, jumpAutoCommand);
