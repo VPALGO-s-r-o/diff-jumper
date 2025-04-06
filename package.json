@@ -1,29 +1,30 @@
 {
-  "name": "compare-editor-jump",
-  "displayName": "Compare editor jump",
-  "description": "Description test",
-  "version": "0.0.1",
+  "name": "diff-jumper",
+  "displayName": "Diff Jumper",
+  "description": "Jump between diffs with ease",
+  "version": "1.0.0",
   "engines": {
-    "vscode": "^1.90.0"
+    "vscode": "^1.98.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Keymaps"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "compare-editor-jump.left",
-        "title": "Jump to Left Editor"
+        "command": "diffJumper.jumpToModified",
+        "title": "Diff Jumper: Jump to Modified"
       },
       {
-        "command": "compare-editor-jump.right",
-        "title": "Jump to Right Editor"
+        "command": "diffJumper.jumpToOriginal",
+        "title": "Diff Jumper: Jump to Original"
       },
       {
-        "command": "compare-editor-jump.auto",
-        "title": "Jump to Other Editor"
+        "command": "diffJumper.jumpToOther",
+        "title": "Diff Jumper: Jump to Other Editor"
       }
     ]
   },
@@ -36,7 +37,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.99.0",
+    "@types/vscode": "^1.98.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
     "@typescript-eslint/eslint-plugin": "^8.28.0",

@@ -1,9 +1,10 @@
 # Change Log
 
-All notable changes to the "compare-editor-jump" extension will be documented in this file.
+## [1.0.0] - 2025-04-06
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
-
-## [Unreleased]
-
-- Initial release
+### Added
+- Initial release of Compare Editor Jump
+- Command to jump to the original editor while maintaining visual alignment
+- Command to jump to the modified editor while maintaining visual alignment
+- New "Jump to Other Editor" command that automatically detects which editor you're in and jumps to the other one
+- Intelligent line mapping algorithm that correctly handles additions, deletions, and modifications

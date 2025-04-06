@@ -1,71 +1,65 @@
-# compare-editor-jump README
+# Compare Editor Jump
 
-This is the README for your extension "compare-editor-jump". After writing up a brief description, we recommend including the following sections.
+This extension enhances the VSCode diff view by allowing you to jump between the original and modified files while maintaining visual alignment. Unlike the built-in commands (`workbench.action.compareEditor.focusSecondarySide` and `workbench.action.compareEditor.focusPrimarySide`), this extension automatically adjusts the cursor position to ensure you stay on the same logical line when switching between editors.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- **Jump to Original**: Jump from the modified editor to the original editor while maintaining visual alignment
+- **Jump to Modified**: Jump from the original editor to the modified editor while maintaining visual alignment
+- **Jump to Other Editor**: Automatically detect which editor you're in and jump to the other one while maintaining visual alignment
 
-For example if there is an image subfolder under your extension project workspace:
+The extension intelligently handles line number differences caused by additions, deletions, and modifications in the diff view, ensuring that you always land on the corresponding line in the target editor.
 
-\!\[feature X\]\(images/feature-x.png\)
+## Usage
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+When you have a diff view open (for example, when viewing changes in the source control panel), you can use the following commands:
 
-## Requirements
+- `Compare Editor Jump: Jump to Original` - Jump to the original editor
+- `Compare Editor Jump: Jump to Modified` - Jump to the modified editor
+- `Compare Editor Jump: Jump to Other Editor` - Jump to whichever editor you're not currently in
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+You can access these commands through the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) or by assigning keyboard shortcuts.
 
-## Extension Settings
+## Recommended Keyboard Shortcuts
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+For the best experience, we recommend adding the following keyboard shortcuts to your `keybindings.json` file:
 
-For example:
+```json
+[
+  {
+    "key": "alt+left",
+    "command": "compare-editor-jump.original",
+    "when": "textCompareEditorVisible"
+  },
+  {
+    "key": "alt+right",
+    "command": "compare-editor-jump.modified",
+    "when": "textCompareEditorVisible"
+  },
+  {
+    "key": "alt+space",
+    "command": "compare-editor-jump.auto",
+    "when": "textCompareEditorVisible"
+  }
+]
+```
 
-This extension contributes the following settings:
+With these shortcuts, you can use:
+- `Alt+Left` to jump to the original editor
+- `Alt+Right` to jump to the modified editor
+- `Alt+Space` to toggle between editors
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## How It Works
 
-## Known Issues
+The extension analyzes the diff information between the original and modified files to create a mapping between line numbers. When you jump between editors, it:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1. Determines your current position
+2. Finds the corresponding line in the target editor
+3. Adjusts for additions, deletions, and modifications
+4. Positions the cursor at the correct line in the target editor
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+This ensures that you stay on the same logical line, even when the line numbers differ due to code changes.
 
 ---
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
