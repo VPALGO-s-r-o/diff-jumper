@@ -1,32 +1,42 @@
 import { TextEditor } from 'vscode'
+import { EditorType } from '../types';
 
-const gitEditorScheme = 'git';
-const fileEditorScheme = 'file';
+const modifiedEditorScheme = 'file';
+const originalEditorScheme = 'git';
 
-type FileType = 'original' | 'modified';
 
-export function isFileEditor(texteditor: TextEditor) {
-    return texteditor.document.uri.scheme === fileEditorScheme;
+export function isOriginalEditor(texteditor: TextEditor) {
+    return texteditor.document.uri.scheme === originalEditorScheme;
 }
 
-export function isGitEditor(texteditor: TextEditor) {
-    return texteditor.document.uri.scheme === gitEditorScheme;
+export function isModifiedEditor(texteditor: TextEditor) {
+    return texteditor.document.uri.scheme === modifiedEditorScheme;
+}
+
+export function getEditorType(texteditor: TextEditor): EditorType {
+    if (isOriginalEditor(texteditor)) {
+        return 'original';
+    } else if (isModifiedEditor(texteditor)) {
+        return 'modified';
+    } else {
+        throw new Error('Unknown editor type');
+    }
 }
 
 /**
  * Finds the corresponding line number in the other file (original or modified)
  * @param currentLine The current line number (1-based)
- * @param currentFileType The type of file the current line is in ('original' or 'modified')
+ * @param currentEditorType The type of editor the current line is in ('original' or 'modified')
  * @param changes The changes array from the diff information
  * @returns The corresponding line number in the other file (1-based)
  */
-export function findCorrespondingLine(currentLine: number, currentFileType: FileType, changes: any): number {
+export function findCorrespondingLine(currentLine: number, currentEditorType: EditorType, changes: any): number {
     // Ensure we're working with the changes array
     const changesArray = Array.isArray(changes) ? changes :
         (changes[0] && changes[0].changes ? changes[0].changes : []);
 
     // For debugging
-    console.log('Current line:', currentLine, 'File type:', currentFileType);
+    console.log('Current line:', currentLine, 'Editor type:', currentEditorType);
 
     // Build a direct mapping between original and modified line numbers
     const originalToModified = new Map<number, number>();
@@ -99,7 +109,7 @@ export function findCorrespondingLine(currentLine: number, currentFileType: File
     }
 
     // Look up the corresponding line
-    if (currentFileType === 'original') {
+    if (currentEditorType === 'original') {
         const targetLine = originalToModified.get(currentLine) || currentLine;
         console.log(`Mapping original line ${currentLine} to modified line ${targetLine}`);
         return targetLine; // Return 1-based line number
