@@ -1,7 +1,6 @@
 # Compare Editor Jump
 
 ![](assets/diff-jumper.gif)
-</p>
 
 This extension enhances the VSCode diff view by allowing you to jump between the original and modified files while maintaining visual alignment. Unlike the built-in commands (`workbench.action.compareEditor.focusSecondarySide` and `workbench.action.compareEditor.focusPrimarySide`), this extension automatically adjusts the cursor position to ensure you stay on the same logical line when switching between editors.
 
@@ -32,17 +31,14 @@ For the best experience, we recommend adding the following keyboard shortcuts to
   {
     "key": "alt+left",
     "command": "compare-editor-jump.original",
-    "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+right",
     "command": "compare-editor-jump.modified",
-    "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+space",
     "command": "compare-editor-jump.auto",
-    "when": "textCompareEditorVisible"
   }
 ]
 ```
