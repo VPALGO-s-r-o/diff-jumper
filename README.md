@@ -31,14 +31,17 @@ For the best experience, we recommend adding the following keyboard shortcuts to
   {
     "key": "alt+left",
     "command": "compare-editor-jump.original",
+    "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+right",
     "command": "compare-editor-jump.modified",
+    "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+space",
     "command": "compare-editor-jump.auto",
+    "when": "textCompareEditorVisible"
   }
 ]
 ```
