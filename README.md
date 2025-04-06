@@ -1,6 +1,8 @@
-# compare-editor-jump README
+# README
 
-This is the README for your extension "compare-editor-jump". After writing up a brief description, we recommend including the following sections.
+<p align="center">
+  <img src="https://media.githubusercontent.com/media/cline/cline/main/assets/diff-jumper.gif" width="100%" />
+</p>
 
 ## Features
 
