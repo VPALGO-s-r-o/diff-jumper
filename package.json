@@ -39,6 +39,10 @@
       {
         "command": "diffJumper.jumpToOther",
         "title": "Diff Jumper: Jump to Other Editor"
+      },
+      {
+        "command": "diffJumper.openDiffOnCurrentLine",
+        "title": "Diff Jumper: Open Diff on Current Line"
       }
     ]
   },

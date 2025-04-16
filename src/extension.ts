@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { findCorrespondingLine, getEditorType, isModifiedEditor, isOriginalEditor, jumpToLine } from './utils/editorUtilts';
+import { COMMANDS } from './utils/commands';
 
 /**
  * Handles jumping between editors in a diff view
@@ -38,8 +39,8 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 	}
 
 	const focusCommand = target === 'modified'
-		? 'workbench.action.compareEditor.focusPrimarySide'
-		: 'workbench.action.compareEditor.focusSecondarySide';
+		? COMMANDS.FOCUS_PRIMARY_SIDE
+		: COMMANDS.FOCUS_SECONDARY_SIDE;
 
 	const currentLine = currentEditor.selection.active.line;
 	const changes = (modifiedEditor as any).diffInformation[0].changes;
@@ -52,6 +53,27 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 	jumpToLine(lineToJump, targetEditor);
 
 	vscode.commands.executeCommand(focusCommand);
+}
+
+function openDiffOnCurrentLine() {
+	const currentEditor = vscode.window.activeTextEditor;
+	if (!currentEditor) {
+		vscode.window.showInformationMessage('No active editor found');
+		return;
+	}
+
+	const currentLine = currentEditor.selection.active.line;
+
+	vscode.commands.executeCommand(COMMANDS.GIT_OPEN_CHANGE).then(() => {
+		const modifiedEditor = vscode.window.visibleTextEditors.find((editor) => isModifiedEditor(editor));
+
+		if (!modifiedEditor) {
+			vscode.window.showInformationMessage('No modified editor found');
+			return;
+		}
+
+		jumpToLine(currentLine + 1, modifiedEditor, vscode.TextEditorRevealType.InCenter);
+	});
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -67,7 +89,11 @@ export function activate(context: vscode.ExtensionContext) {
 		handleJump('auto');
 	});
 
-	context.subscriptions.push(jumpLeftCommand, jumpRightCommand, jumpAutoCommand);
+	const openDiffOnCurrentLineCommand = vscode.commands.registerCommand('diffJumper.openDiffOnCurrentLine', () => {
+		openDiffOnCurrentLine();
+	});
+
+	context.subscriptions.push(jumpLeftCommand, jumpRightCommand, jumpAutoCommand, openDiffOnCurrentLineCommand);
 }
 
 export function deactivate() { }
