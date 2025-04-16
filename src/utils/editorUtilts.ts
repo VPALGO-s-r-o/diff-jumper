@@ -1,5 +1,6 @@
 import { TextEditor } from 'vscode'
 import { EditorType } from '../types';
+import * as vscode from 'vscode';
 
 const modifiedEditorScheme = 'file';
 const originalEditorScheme = 'git';
@@ -11,6 +12,16 @@ export function isOriginalEditor(texteditor: TextEditor) {
 
 export function isModifiedEditor(texteditor: TextEditor) {
     return texteditor.document.uri.scheme === modifiedEditorScheme;
+}
+
+export function jumpToLine(line: number, editor: TextEditor, revealType: vscode.TextEditorRevealType | undefined = vscode.TextEditorRevealType.InCenter) {
+    const zeroBasedLine = line - 1;
+    const range = new vscode.Range(new vscode.Position(zeroBasedLine, 0), new vscode.Position(zeroBasedLine, 0));
+
+    editor.selection = new vscode.Selection(range.start, range.start);
+    if (revealType) {
+        editor.revealRange(range, revealType);
+    }
 }
 
 export function getEditorType(texteditor: TextEditor): EditorType {
