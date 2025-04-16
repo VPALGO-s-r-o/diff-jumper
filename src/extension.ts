@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { findCorrespondingLine, getEditorType, isModifiedEditor, isOriginalEditor } from './utils/editorUtilts';
+import { findCorrespondingLine, getEditorType, isModifiedEditor, isOriginalEditor, jumpToLine } from './utils/editorUtilts';
 
 /**
  * Handles jumping between editors in a diff view
@@ -47,13 +47,11 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 	const lineToJump = findCorrespondingLine(currentLine + 1, currentEditorType, changes);
 	console.log('jumping to line: ', lineToJump);
 
-	const zeroBasedLine = lineToJump - 1;
-	const range = new vscode.Range(new vscode.Position(zeroBasedLine, 0), new vscode.Position(zeroBasedLine, 0));
+	const targetEditor = target === 'modified' ? modifiedEditor : originalEditor;
+
+	jumpToLine(lineToJump, targetEditor);
 
 	vscode.commands.executeCommand(focusCommand);
-
-	const targetEditor = target === 'modified' ? modifiedEditor : originalEditor;
-	targetEditor.selection = new vscode.Selection(range.start, range.start);
 }
 
 export function activate(context: vscode.ExtensionContext) {
