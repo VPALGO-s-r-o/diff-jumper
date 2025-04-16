@@ -9,6 +9,7 @@ This extension enhances the VSCode diff view by allowing you to jump between the
 - **Jump to Original**: Jump from the modified editor to the original editor while maintaining visual alignment
 - **Jump to Modified**: Jump from the original editor to the modified editor while maintaining visual alignment
 - **Jump to Other Editor**: Automatically detect which editor you're in and jump to the other one while maintaining visual alignment
+- **Open diff on current line**: Opens the diff and jumps to the line which which the opening was triggered from
 
 The extension intelligently handles line number differences caused by additions, deletions, and modifications in the diff view, ensuring that you always land on the corresponding line in the target editor.
 
@@ -16,9 +17,13 @@ The extension intelligently handles line number differences caused by additions,
 
 When you have a diff view open (for example, when viewing changes in the source control panel), you can use the following commands:
 
-- `Compare Editor Jump: Jump to Original` - Jump to the original editor
-- `Compare Editor Jump: Jump to Modified` - Jump to the modified editor
-- `Compare Editor Jump: Jump to Other Editor` - Jump to whichever editor you're not currently in
+- `Diff Jumper: Jump to Original` - Jump to the original editor
+- `Diff Jumper: Jump to Modified` - Jump to the modified editor
+- `Diff Jumper: Jump to Other Editor` - Jump to whichever editor you're not currently in
+
+If you want to open a diff (`git.openChange`) and you want to end up on the same line you triggered the opening open use this command:
+- `Diff Jumper: Open Diff on Current Line` 
+
 
 You can access these commands through the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) or by assigning keyboard shortcuts.
 
@@ -30,17 +35,17 @@ For the best experience, we recommend adding the following keyboard shortcuts to
 [
   {
     "key": "alt+left",
-    "command": "compare-editor-jump.original",
+    "command": "diffJumper.jumpToOriginal",
     "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+right",
-    "command": "compare-editor-jump.modified",
+    "command": "diffJumper.jumpToModified",
     "when": "textCompareEditorVisible"
   },
   {
     "key": "alt+space",
-    "command": "compare-editor-jump.auto",
+    "command": "diffJumper.jumpToOther",
     "when": "textCompareEditorVisible"
   }
 ]
