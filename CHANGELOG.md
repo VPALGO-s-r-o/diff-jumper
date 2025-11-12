@@ -12,3 +12,8 @@
 ## [1.0.1] - 2025-04-07
 
 - Downgrade the version of vscode to 1.96.0
+
+## [1.1.0] - 2025-04-17
+
+### Added
+- New command: `diffJumper.openDiffOnCurrentLine`
