@@ -1,6 +1,17 @@
 import * as vscode from 'vscode';
-import { findCorrespondingLine, getEditorType, isModifiedEditor, isOriginalEditor, jumpToLine } from './utils/editorUtilts';
+import { findCorrespondingLine, jumpToLine } from './utils/editorUtilts';
 import { COMMANDS } from './utils/commands';
+
+export function resolveDiffEditors(input: unknown, editors: readonly vscode.TextEditor[]) {
+	if (!(input instanceof vscode.TabInputTextDiff)) {
+		return undefined;
+	}
+
+	return {
+		originalEditor: editors.find((editor) => editor.document.uri.toString() === input.original.toString()),
+		modifiedEditor: editors.find((editor) => editor.document.uri.toString() === input.modified.toString())
+	};
+}
 
 /**
  * Handles jumping between editors in a diff view
@@ -14,8 +25,16 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 		return;
 	}
 
-	const modifiedEditor = vscode.window.visibleTextEditors.find((editor) => isModifiedEditor(editor));
-	const originalEditor = vscode.window.visibleTextEditors.find((editor) => isOriginalEditor(editor));
+	const diffEditors = resolveDiffEditors(
+		vscode.window.tabGroups.activeTabGroup.activeTab?.input,
+		vscode.window.visibleTextEditors
+	);
+	if (!diffEditors) {
+		vscode.window.showInformationMessage('Open a text diff before jumping between sides');
+		return;
+	}
+
+	const { modifiedEditor, originalEditor } = diffEditors;
 
 	if (!modifiedEditor) {
 		vscode.window.showInformationMessage('No modified editor found');
@@ -27,7 +46,13 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 		return;
 	}
 
-	const currentEditorType = getEditorType(currentEditor);
+	const currentUri = currentEditor.document.uri.toString();
+	const currentEditorType = currentUri === originalEditor.document.uri.toString() ? 'original'
+		: currentUri === modifiedEditor.document.uri.toString() ? 'modified' : undefined;
+	if (!currentEditorType) {
+		vscode.window.showInformationMessage('Focus a side of the active diff before jumping');
+		return;
+	}
 
 	if (target === 'auto') {
 		target = currentEditorType === 'modified' ? 'original' : 'modified';
@@ -43,7 +68,13 @@ function handleJump(target: 'original' | 'modified' | 'auto') {
 		: COMMANDS.FOCUS_SECONDARY_SIDE;
 
 	const currentLine = currentEditor.selection.active.line;
-	const changes = (modifiedEditor as any).diffInformation[0].changes;
+	const changes = (modifiedEditor as vscode.TextEditor & {
+		diffInformation?: readonly { changes: unknown }[];
+	}).diffInformation?.[0]?.changes;
+	if (!Array.isArray(changes)) {
+		vscode.window.showInformationMessage('Diff change information is unavailable; wait for the diff to load and try again');
+		return;
+	}
 
 	const lineToJump = findCorrespondingLine(currentLine + 1, currentEditorType, changes);
 	console.log('jumping to line: ', lineToJump);
@@ -65,7 +96,10 @@ function openDiffOnCurrentLine() {
 	const currentLine = currentEditor.selection.active.line;
 
 	vscode.commands.executeCommand(COMMANDS.GIT_OPEN_CHANGE).then(() => {
-		const modifiedEditor = vscode.window.visibleTextEditors.find((editor) => isModifiedEditor(editor));
+		const modifiedEditor = resolveDiffEditors(
+			vscode.window.tabGroups.activeTabGroup.activeTab?.input,
+			vscode.window.visibleTextEditors
+		)?.modifiedEditor;
 
 		if (!modifiedEditor) {
 			vscode.window.showInformationMessage('No modified editor found');

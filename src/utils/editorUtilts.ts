@@ -5,7 +5,6 @@ import * as vscode from 'vscode';
 const modifiedEditorScheme = 'file';
 const originalEditorScheme = 'git';
 
-
 export function isOriginalEditor(texteditor: TextEditor) {
     return texteditor.document.uri.scheme === originalEditorScheme;
 }
@@ -91,15 +90,14 @@ export function findCorrespondingLine(currentLine: number, currentEditorType: Ed
                 originalToModified.set(originalStart + i, modifiedStart);
             }
         } else if (originalSize > 0 && modifiedSize > 0) {
-            // Modification - map proportionally
-            for (let i = 0; i < originalSize; i++) {
-                const modifiedIndex = Math.floor(i * modifiedSize / originalSize);
-                originalToModified.set(originalStart + i, modifiedStart + modifiedIndex);
+            for (let lineOffset = 0; lineOffset < originalSize; lineOffset++) {
+                const modifiedIndex = Math.min(lineOffset, modifiedSize - 1);
+                originalToModified.set(originalStart + lineOffset, modifiedStart + modifiedIndex);
             }
 
-            for (let i = 0; i < modifiedSize; i++) {
-                const originalIndex = Math.floor(i * originalSize / modifiedSize);
-                modifiedToOriginal.set(modifiedStart + i, originalStart + originalIndex);
+            for (let lineOffset = 0; lineOffset < modifiedSize; lineOffset++) {
+                const originalIndex = Math.min(lineOffset, originalSize - 1);
+                modifiedToOriginal.set(modifiedStart + lineOffset, originalStart + originalIndex);
             }
         }
 
@@ -119,14 +117,11 @@ export function findCorrespondingLine(currentLine: number, currentEditorType: Ed
         modifiedLine++;
     }
 
-    // Look up the corresponding line
     if (currentEditorType === 'original') {
-        const targetLine = originalToModified.get(currentLine) || currentLine;
-        console.log(`Mapping original line ${currentLine} to modified line ${targetLine}`);
-        return targetLine; // Return 1-based line number
-    } else {
-        const targetLine = modifiedToOriginal.get(currentLine) || currentLine;
-        console.log(`Mapping modified line ${currentLine} to original line ${targetLine}`);
-        return targetLine; // Return 1-based line number
+        return originalToModified.get(currentLine)
+            ?? currentLine + (modifiedLine - originalLine);
     }
+
+    return modifiedToOriginal.get(currentLine)
+        ?? currentLine + (originalLine - modifiedLine);
 }
